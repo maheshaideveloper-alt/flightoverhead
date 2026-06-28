@@ -20,19 +20,19 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.5'
+
       - name: Extract project
-        run: |
-          unzip FlightOverhead.zip
-          find . -name "settings.gradle.kts" | head -5
+        run: unzip FlightOverhead.zip
 
       - name: Build APK
         run: |
-          PROJECT=$(find . -name "settings.gradle.kts" -exec dirname {} \; | head -1)
-          echo "Building in: $PROJECT"
-          cd "$PROJECT"
+          cd FlightOverhead
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          gradle assembleDebug --no-daemon
 
       - uses: actions/upload-artifact@v4
         with:
