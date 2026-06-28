@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: FlightOverhead
 
     steps:
       - uses: actions/checkout@v4
@@ -23,17 +20,24 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+      - name: Find project root
+        run: |
+          echo "=== Repo contents ==="
+          ls -la
+          echo "=== Looking for settings.gradle.kts ==="
+          find . -name "settings.gradle.kts" | head -5
 
       - name: Build APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: |
+          PROJECT=$(find . -name "settings.gradle.kts" -exec dirname {} \; | head -1)
+          echo "Building in: $PROJECT"
+          cd "$PROJECT"
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
       - uses: actions/upload-artifact@v4
         with:
           name: FlightOverhead-debug
-          path: FlightOverhead/app/build/outputs/apk/debug/app-debug.apk
+          path: "**/app/build/outputs/apk/debug/app-debug.apk"
           retention-days: 30
