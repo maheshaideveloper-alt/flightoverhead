@@ -12,32 +12,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Find project root
-        run: |
-          echo "=== Repo contents ==="
-          ls -la
-          echo "=== Looking for settings.gradle.kts ==="
-          find . -name "settings.gradle.kts" | head -5
-
-      - name: Build APK
-        run: |
-          PROJECT=$(find . -name "settings.gradle.kts" -exec dirname {} \; | head -1)
-          echo "Building in: $PROJECT"
-          cd "$PROJECT"
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: FlightOverhead-debug
-          path: "**/app/build/outputs/apk/debug/app-debug.apk"
-          retention-days: 30
+      - name: Show all files
+        run: find . -not -path './.git/*' | sort
